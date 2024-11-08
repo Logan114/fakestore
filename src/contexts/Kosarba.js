@@ -1,23 +1,35 @@
-import React, { createContext, useEffect, useState } from "react";
+// Kosarba.js in ../contexts/
+import React, { createContext, useState, useEffect, useContext } from "react";
+import Termek from "../components/Termek";
+import { ApiContext } from "./ApiContext";
 
-// Create the context
 export const KosarContext = createContext();
 
-// Create the provider
 export const KosarProvider = ({ children }) => {
-    const [kosarLista, setKosarLista] = useState([]);
+  const [kosarLista, setKosarLista] = useState([]);
+  const { termekLista } = useContext(ApiContext);
 
-    const addToKosar = (id) => {
-        setKosarLista((prevKosar) => [...prevKosar, id]);
-    };
+  const addToKosar = (id) => {
+    setKosarLista((prevKosar) => {
+      if (!prevKosar.includes(id)) {
+        return [...prevKosar, id];
+      }
+      return prevKosar;
+    });
+  };
 
-    useEffect(() => {
-        console.log("Current cart:", kosarLista);
-    }, [kosarLista]);
+  useEffect(() => {
+    kosarLista.forEach((element, index) => {
+      const termek = termekLista.find((item) => item.id === element);
+      if (termek) {
+        console.log(termek.title);
+      }
+    });
+  }, [kosarLista]);
 
-    return (
-        <KosarContext.Provider value={{ kosarLista, addToKosar }}>
-            {children}
-        </KosarContext.Provider>
-    );
+  return (
+    <KosarContext.Provider value={{ kosarLista, addToKosar }}>
+      {children}
+    </KosarContext.Provider>
+  );
 };
